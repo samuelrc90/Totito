@@ -8,8 +8,12 @@ import Clases.*;
 import Controlador.cJugador;
 import Controlador.cMovimientos;
 import Modelo.*;
+import java.sql.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
+
 import javax.swing.*;
+import java.awt.*;
 import javax.swing.table.DefaultTableModel;
 
 /**
@@ -18,35 +22,193 @@ import javax.swing.table.DefaultTableModel;
  */
 public class frmPrincipal extends javax.swing.JFrame {
 DefaultTableModel mover;
+    
+    Jugador modelo;
+    Jugadores jugador1, jugador2;
+    AlgorimtoIA CPU;
+    boolean jugando, terminado;
+    
+    public final int homVScpu = 2;
+    public final int JUGADOR1 = 1;
+    public final int JUGADOR2 = 2;    
+    public boolean pensando = false;
+    
+    int turno = 0;
+    int turnoGeneral = 0;
+    
+    /*Matriz Juego*/
+    int[] tablero = new int[9];
+    
+    /*Tablero*/
+    JLabel fichas[];
+
 
     /**
      * Creates new form frmPrincipal
      */
     public frmPrincipal() {
+            /*llenar tablero de 0 o null*/
+            Arrays.fill(tablero,0);
+           
         initComponents();
-         this.setLocationRelativeTo(null);
+         iniciarCom();
+        
+        this.setLocationRelativeTo(null);
         limpiar();
         updateJu();
-        updateMo();
-        
+        updateMo();   
         
     }
-
-    /*Coloca Ficha*/
+    
+    
     public void movimiento(JLabel ficha){
   
-        String casilla = ficha.getName();
-    
-        System.out.println(casilla);
+        if(jugando){
+            if(!pensando)
+                ponerFicha(ficha);
+            if(this.modelo.tipo == 2 && this.turno == JUGADOR2){
+                pensando = true;
+                ponerFichaCPU(CPU.movimiento(this.tablero));
+                pensando = false;
+            }   
+        }
+        if(terminado){
+            reiniciarJuego();
+            return;
+        }
+        
+        /*se verifica si termino el juego o alguien gano*/
+        if(terminado() != 0){
+        }
     
     }
+    /*Pone la ficha por la computador*/
+    public void ponerFichaCPU(int indice){
+        if(indice == -1) return;
+            switch(indice){
+                case 0: this.a.setIcon(jugador2.obtnerFicha()); break;
+                case 1: this.b.setIcon(jugador2.obtnerFicha()); break;
+                case 2: this.c.setIcon(jugador2.obtnerFicha()); break;
+                case 3: this.d.setIcon(jugador2.obtnerFicha()); break;
+                case 4: this.e.setIcon(jugador2.obtnerFicha()); break;
+                case 5: this.f.setIcon(jugador2.obtnerFicha()); break;
+                case 6: this.g.setIcon(jugador2.obtnerFicha()); break;
+                case 7: this.h.setIcon(jugador2.obtnerFicha()); break;
+                case 8: this.i.setIcon(jugador2.obtnerFicha()); break;         
+            }
+            this.tablero[indice] = 2;
+            /*Cambio de Turno*/
+            turno = (turno == JUGADOR1) ? JUGADOR2 : JUGADOR1;
+    }
+    /*pone una ficha en el tablero*/
+    public void ponerFicha(JLabel ficha){
+        int casilla = Integer.parseInt(""+ficha.getName().charAt(1))-1;
+        
+        /*comprobar si la casilla esta ocupada*/
+        if(estaOcupada(casilla))
+            return;
+    }
+    /*0 nadie gano*/
+    /*1 ganan jugador 1*/
+    /*2 ganan jugador 2*/
+    
+    public int terminado(){
+ /*Filas*/       if(tablero[0] == tablero[1] && tablero[0] == tablero[2] && tablero[0] != 0)    return tablero[0];
+            else if(tablero[3] == tablero[4] && tablero[3] == tablero[5] && tablero[3] != 0)    return tablero[3];
+            else if(tablero[6] == tablero[7] && tablero[6] == tablero[8] && tablero[6] != 0)    return tablero[6];
+/*Columnas*/else if(tablero[0] == tablero[3] && tablero[0] == tablero[6] && tablero[0] != 0)    return tablero[0];
+            else if(tablero[1] == tablero[4] && tablero[1] == tablero[7] && tablero[1] != 0)    return tablero[1];
+            else if(tablero[2] == tablero[5] && tablero[2] == tablero[8] && tablero[2] != 0)    return tablero[2];  
+/*Digonal*/ else if(tablero[0] == tablero[4] && tablero[0] == tablero[8] && tablero[0] != 0)    return tablero[0];
+            else if(tablero[2] == tablero[4] && tablero[2] == tablero[6] && tablero[2] != 0)    return tablero[2];
+       
+        return 0;
+    }
+    public boolean lleno(){
+        boolean res = true;
+        for(int i = 0; i < tablero.length; i++)
+            if(tablero[i] == 0)
+                res = false;
+        return res;
+    }
+    /*Indica si la casilla esta ocupada*/
+    public boolean estaOcupada(int casilla){
+    return (tablero[casilla] != 0);
+    }
+    
+public void recibirJugador(){
+    inicioJuego();
+}
+public void inicioJuego(){
+    
+}
+
+public void reiniciarJuego(){
+    Arrays.fill(tablero, 0);
+    /*borrar icono*/
+    for(int i = 0; i<9; i++)
+        fichas[i].setIcon(null);
+    try {
+        
+    } catch (Exception e) {
+    }
+    
+    /*Cambio de turno*/
+    if(this.modelo.tipo == homVScpu)
+        turnoGeneral = JUGADOR1;
+    else
+        turnoGeneral = (turnoGeneral == JUGADOR1 ) ? JUGADOR2 : JUGADOR1;
+    turno = turnoGeneral;
+    
+    /*jugando*/
+    if(turno == JUGADOR1)
+        mensaje("Turno de:  "+ jugador1);
+    mostrarInfo();
+    jugando = true;
+    terminado = false;
+    
+}
+public  void suspenderJuego(){
+
+
+}
+private  void iniciarCom(){
+
+
+    /*Referencia de las Etiquetas*/
+     fichas = new JLabel[9];
+     fichas[0] = a; fichas[1] = b; fichas[2] = c;
+     fichas[3] = d; fichas[4] = e; fichas[5] = f;
+     fichas[6] = g; fichas[7] = h; fichas[8] = i;
+     
+     for(int i = 0; i < 9; i++)
+        fichas[i].setCursor( new Cursor(Cursor.HAND_CURSOR));
+     
+    
+}
+public void mostrarInfo(){
+    
+
+}
+
+public void mensaje(String msj){
+    this.lblJugador.setText(msj);
+}
+public void cambiarFoco(){
+
+    
+
+}
+    
+    
+    
     
     public void limpiar(){
      
     
     
     }
-    private void updateJu(){
+    public void updateJu(){
         ArrayList<mJugador> res = null;
         res = cJugador.listarJugador(txtBuscar.getText());
         System.out.println(res);
@@ -80,9 +242,9 @@ DefaultTableModel mover;
         });
         
     }
-    private void updateMo(){
+    public void updateMo(){
     ArrayList<mMovimientos> mov = null;
-        mov =  cMovimientos.listarMovimientos(lblID.getText());
+        mov =  cMovimientos.listarMovimientos(lblJugador.getText());
         System.out.println(mov);
      llenarMov(mov); 
     }
@@ -133,15 +295,15 @@ DefaultTableModel mover;
         jScrollPane1 = new javax.swing.JScrollPane();
         tblJugadores = new javax.swing.JTable();
         jPanel1 = new javax.swing.JPanel();
-        lblF1 = new javax.swing.JLabel();
-        lblF2 = new javax.swing.JLabel();
-        lblF3 = new javax.swing.JLabel();
-        lblF4 = new javax.swing.JLabel();
-        lblF5 = new javax.swing.JLabel();
-        lblF6 = new javax.swing.JLabel();
-        lblF7 = new javax.swing.JLabel();
-        lblF8 = new javax.swing.JLabel();
-        lblF9 = new javax.swing.JLabel();
+        a = new javax.swing.JLabel();
+        b = new javax.swing.JLabel();
+        c = new javax.swing.JLabel();
+        d = new javax.swing.JLabel();
+        e = new javax.swing.JLabel();
+        f = new javax.swing.JLabel();
+        g = new javax.swing.JLabel();
+        h = new javax.swing.JLabel();
+        i = new javax.swing.JLabel();
         jScrollPane2 = new javax.swing.JScrollPane();
         tblMovimientos = new javax.swing.JTable();
         txtBuscar = new javax.swing.JTextField();
@@ -149,7 +311,6 @@ DefaultTableModel mover;
         jLabel2 = new javax.swing.JLabel();
         img2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
-        lblID = new javax.swing.JLabel();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         jMenuItem1 = new javax.swing.JMenuItem();
@@ -180,49 +341,89 @@ DefaultTableModel mover;
 
         jPanel1.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
 
-        lblF1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        lblF1.setToolTipText("");
-        lblF1.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
-        lblF1.addMouseListener(new java.awt.event.MouseAdapter() {
+        a.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        a.setToolTipText("");
+        a.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        a.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                lblF1MouseClicked(evt);
+                aMouseClicked(evt);
             }
         });
 
-        lblF2.setBackground(new java.awt.Color(204, 204, 255));
-        lblF2.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        lblF2.setToolTipText("");
-        lblF2.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        b.setBackground(new java.awt.Color(204, 204, 255));
+        b.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        b.setToolTipText("");
+        b.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        b.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                bMouseClicked(evt);
+            }
+        });
 
-        lblF3.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        lblF3.setToolTipText("");
-        lblF3.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        c.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        c.setToolTipText("");
+        c.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        c.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                cMouseClicked(evt);
+            }
+        });
 
-        lblF4.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        lblF4.setToolTipText("");
-        lblF4.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        d.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        d.setToolTipText("");
+        d.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        d.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                dMouseClicked(evt);
+            }
+        });
 
-        lblF5.setBackground(new java.awt.Color(204, 204, 255));
-        lblF5.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        lblF5.setToolTipText("");
-        lblF5.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        e.setBackground(new java.awt.Color(204, 204, 255));
+        e.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        e.setToolTipText("");
+        e.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        e.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                eMouseClicked(evt);
+            }
+        });
 
-        lblF6.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        lblF6.setToolTipText("");
-        lblF6.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        f.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        f.setToolTipText("");
+        f.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        f.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                fMouseClicked(evt);
+            }
+        });
 
-        lblF7.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        lblF7.setToolTipText("");
-        lblF7.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        g.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        g.setToolTipText("");
+        g.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        g.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                gMouseClicked(evt);
+            }
+        });
 
-        lblF8.setBackground(new java.awt.Color(204, 204, 255));
-        lblF8.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        lblF8.setToolTipText("");
-        lblF8.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        h.setBackground(new java.awt.Color(204, 204, 255));
+        h.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        h.setToolTipText("");
+        h.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        h.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                hMouseClicked(evt);
+            }
+        });
 
-        lblF9.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        lblF9.setToolTipText("");
-        lblF9.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        i.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        i.setToolTipText("");
+        i.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        i.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                iMouseClicked(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -232,42 +433,42 @@ DefaultTableModel mover;
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                         .addGroup(jPanel1Layout.createSequentialGroup()
-                            .addComponent(lblF1, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(a, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(lblF2, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(b, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(lblF3, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(c, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                            .addComponent(lblF4, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(d, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(lblF5, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(e, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(lblF6, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addComponent(f, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(lblF7, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(g, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(lblF8, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(h, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(lblF9, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(i, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addGap(0, 0, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(lblF1, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(lblF2, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(lblF3, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(a, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(b, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(c, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(lblF4, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(lblF5, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(lblF6, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(d, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(e, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(f, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(lblF7, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(lblF8, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(lblF9, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addComponent(g, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(h, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(i, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)))
         );
 
         tblMovimientos.setModel(new javax.swing.table.DefaultTableModel(
@@ -289,13 +490,13 @@ DefaultTableModel mover;
             }
         });
 
+        lblJugador.setText("j");
+
         jLabel2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/persona.png"))); // NOI18N
 
         img2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/pvspc.png"))); // NOI18N
 
         jLabel3.setText("VS");
-
-        lblID.setText("0");
 
         jMenu1.setText("Archivo");
 
@@ -342,25 +543,18 @@ DefaultTableModel mover;
                         .addComponent(img2))
                     .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 429, Short.MAX_VALUE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(lblID)
-                        .addGap(0, 0, Short.MAX_VALUE)))
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 429, Short.MAX_VALUE)
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(lblJugador, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jLabel3, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(0, 0, Short.MAX_VALUE)
-                        .addComponent(lblID, javax.swing.GroupLayout.PREFERRED_SIZE, 18, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(lblJugador, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
                         .addComponent(img2)
                         .addGap(0, 0, Short.MAX_VALUE)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -379,15 +573,15 @@ DefaultTableModel mover;
 
     private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
         // TODO add your handling code here:
-        Jugador jug = new Jugador();
+        Jugador jug = new Jugador(this);
         
         jug.setVisible(true);
     }//GEN-LAST:event_jMenuItem1ActionPerformed
 
-    private void lblF1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblF1MouseClicked
+    private void aMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_aMouseClicked
         // TODO add your handling code here:
-        movimiento(lblF1);
-    }//GEN-LAST:event_lblF1MouseClicked
+        movimiento(a);
+    }//GEN-LAST:event_aMouseClicked
 
     private void txtBuscarKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtBuscarKeyReleased
         // TODO add your handling code here:
@@ -406,7 +600,7 @@ DefaultTableModel mover;
                 ID = tblJugadores.getValueAt(seleccion,0).toString();
                 Nombre = tblJugadores.getValueAt(seleccion,1).toString();
              lblJugador.setText(Nombre);
-             lblID.setText(ID);
+             
              
             
             }
@@ -415,6 +609,46 @@ DefaultTableModel mover;
         updateMo();
     }//GEN-LAST:event_jmiCambiarActionPerformed
 
+    private void bMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_bMouseClicked
+        // TODO add your handling code here:
+        movimiento(b);
+    }//GEN-LAST:event_bMouseClicked
+
+    private void cMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_cMouseClicked
+        // TODO add your handling code here:
+         movimiento(c);
+    }//GEN-LAST:event_cMouseClicked
+
+    private void dMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_dMouseClicked
+        // TODO add your handling code here:
+        movimiento(d);
+    }//GEN-LAST:event_dMouseClicked
+
+    private void eMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_eMouseClicked
+        // TODO add your handling code here:
+         movimiento(e);
+    }//GEN-LAST:event_eMouseClicked
+
+    private void fMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_fMouseClicked
+        // TODO add your handling code here:
+         movimiento(f);
+    }//GEN-LAST:event_fMouseClicked
+
+    private void gMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_gMouseClicked
+        // TODO add your handling code here:
+         movimiento(g);
+    }//GEN-LAST:event_gMouseClicked
+
+    private void hMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_hMouseClicked
+        // TODO add your handling code here:
+         movimiento(h);
+    }//GEN-LAST:event_hMouseClicked
+
+    private void iMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_iMouseClicked
+        // TODO add your handling code here:
+         movimiento(i);
+    }//GEN-LAST:event_iMouseClicked
+   
     /**
      * @param args the command line arguments
      */
@@ -451,6 +685,15 @@ DefaultTableModel mover;
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel a;
+    private javax.swing.JLabel b;
+    private javax.swing.JLabel c;
+    private javax.swing.JLabel d;
+    private javax.swing.JLabel e;
+    private javax.swing.JLabel f;
+    private javax.swing.JLabel g;
+    private javax.swing.JLabel h;
+    private javax.swing.JLabel i;
     private javax.swing.JLabel img2;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
@@ -465,16 +708,6 @@ DefaultTableModel mover;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JMenuItem jmiCambiar;
     private javax.swing.JPopupMenu jpmPerfil;
-    private javax.swing.JLabel lblF1;
-    private javax.swing.JLabel lblF2;
-    private javax.swing.JLabel lblF3;
-    private javax.swing.JLabel lblF4;
-    private javax.swing.JLabel lblF5;
-    private javax.swing.JLabel lblF6;
-    private javax.swing.JLabel lblF7;
-    private javax.swing.JLabel lblF8;
-    private javax.swing.JLabel lblF9;
-    private javax.swing.JLabel lblID;
     private javax.swing.JLabel lblJugador;
     private javax.swing.JTable tblJugadores;
     private javax.swing.JTable tblMovimientos;

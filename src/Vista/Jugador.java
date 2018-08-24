@@ -19,14 +19,36 @@ import javax.swing.UIManager;
  */
 public class Jugador extends javax.swing.JFrame {
 
+        private frmPrincipal juego;
+        private JOptionPane msj;
+        public final int HvC = 2;
+        public int tipo = 0;
+        public String Nombre;
+        
     /**
      * Creates new form Jugador
      */
-    public Jugador() {
+    public Jugador(frmPrincipal juego) {
         initComponents();
          this.setLocationRelativeTo(null);
+         this.juego = juego;
     }
 
+    private Jugador() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    public boolean recoger(){
+        this.tipo = HvC;
+        this.Nombre = txtJugador.getText();
+        System.out.println(tipo + " " +Nombre);
+        return  true;
+    }
+    public void enviarJugador(){    
+    juego.recibirJugador();
+    juego.updateJu();
+    }
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -139,6 +161,10 @@ public class Jugador extends javax.swing.JFrame {
                             j.setJug_Nombre(txtJugador.getText());
                             cJugador.ingresaJugador(j);
                             JOptionPane.showMessageDialog(null, "Jugador Almacenado Correctamente");
+                            if(recoger()){
+                            
+                            enviarJugador();
+                            }
                             this.dispose();
                         } catch (SQLException e) {
                                  System.out.println("Erro DB"+e.getMessage());
@@ -154,7 +180,8 @@ public class Jugador extends javax.swing.JFrame {
 
     private void tbnCancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tbnCancelarActionPerformed
         // TODO add your handling code here:
-        dispose();
+      //  dispose();
+      
     }//GEN-LAST:event_tbnCancelarActionPerformed
 
     /**

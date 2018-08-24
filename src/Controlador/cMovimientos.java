@@ -23,8 +23,8 @@ public class cMovimientos {
     
     
     
-        public static ArrayList<mMovimientos> listarMovimientos(String ID){
-        return mostrar("mov_Jugador",ID);
+        public static ArrayList<mMovimientos> listarMovimientos(String Nombre){
+        return mostrar("Jug_Nombre",Nombre);
     }
     
     private static ArrayList<mMovimientos> mostrar(String a, String b){
@@ -38,7 +38,7 @@ public class cMovimientos {
                     "	COUNT(case when (mov_Descripcion = 'G') then mov_Descripcion  else null end) as G,\n" +
                     "	COUNT(case when (mov_Descripcion = 'H') then mov_Descripcion  else null end) as H,\n" +
                     "	COUNT(case when (mov_Descripcion = 'I') then mov_Descripcion  else null end) as I\n" +
-                    "   FROM  movimiento WHERE "+ a +" = "+ b +" GROUP BY mov\n"); 
+                    "   FROM  movimiento INNER JOIN jugador ON mov_Jugador = idjugador WHERE "+ a +" = '"+ b +"' GROUP BY mov\n"); 
     }
     
     private static ArrayList<mMovimientos> consulta(String sql){
